@@ -3,17 +3,17 @@ class Song {
   final String title;
   final String? artist;
   final String path;
-  final String duration;
-  final bool isFavourite;
+  final Duration duration;
+  bool isFavourite;
 
   //constructor
-  const Song({
+   Song({
     required this.id,
     required this.title,
     this.artist,
     required this.path,
     required this.duration,
-    required this.isFavourite
+    this.isFavourite = false
   });
 
 }

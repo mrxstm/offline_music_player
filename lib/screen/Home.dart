@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:musicccc/Provider/song_provider.dart';
+import 'package:musicccc/tile/song_tile.dart';
+import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
 
@@ -15,6 +19,16 @@ class _HomeState extends State<Home> {
   int selectedIndex = 0;
 
   @override
+  void initState() {
+    super.initState();
+
+    //Fetch song only after screen loads
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      Provider.of<SongProvider>(context, listen: false).fetchSongs();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
@@ -24,12 +38,24 @@ class _HomeState extends State<Home> {
           children: [
             Padding(
               padding: const EdgeInsets.only(top: 20),
-              child: Text(
-                  "GoatedPlayer",
-                style: TextStyle(
-                  color: Color.fromARGB(255, 152, 183, 158),
-                  fontWeight: FontWeight.bold
-                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset(
+                    'assets/icons/headphone-line.svg',
+                    height: 24,
+                    width: 24,
+                    color: Colors.white70
+                  ),
+                  SizedBox(width: 10),
+                  Text(
+                      "GoatedPlayer",
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 152, 183, 158),
+                      fontWeight: FontWeight.bold
+                    ),
+                  )
+                ],
               ),
             ),
             SizedBox(height: 10),
@@ -153,14 +179,14 @@ class _HomeState extends State<Home> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20)
                         ),
-                        selected: selectedIndex == 3,
+                        selected: selectedIndex == 2,
                         selectedColor:Color.fromARGB(255, 152, 183, 158),
                         backgroundColor: Color.fromARGB(255, 30, 33, 40),
                         side: BorderSide.none,
                         showCheckmark: false,
                         onSelected: (bool selected) {
                           setState(() {
-                            selectedIndex = 3;
+                            selectedIndex = 2;
                           });
                         },
                       )
@@ -170,16 +196,60 @@ class _HomeState extends State<Home> {
           ),
           Padding(
             padding: const EdgeInsets.only(left: 20, top: 34),
-            child: Text(
-              "Your Tracks",
-              style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20
-              ),
-              textAlign: TextAlign.left,
-            ),
+            child: Consumer<SongProvider>(
+                builder: (context, songProvider, child) {
+                  return Row(
+                    children: [
+                      Text(
+                        "Your Tracks",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Text(
+                          "(${songProvider.songs.length} songs)",
+                        style: TextStyle(
+                          color: Colors.white70
+                        ),
+                      )
+                    ],
+                  );
+                }
+            )
           ),
+          Expanded(
+            child: Consumer<SongProvider>(
+              builder: (context, songProvider, child) {
+                // Check if songs list is empty (loading state)
+                if (songProvider.songs.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(color: Color.fromARGB(255, 152, 183, 158)),
+                        SizedBox(height: 16),
+                        Text(
+                          "Loading songs...",
+                          style: TextStyle(color: Colors.white70),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                // If songs are loaded, show the list
+                return ListView.builder(
+                  itemCount: songProvider.songs.length,
+                  itemBuilder: (context, index) {
+                    return SongTile(song: songProvider.songs[index]);
+                  },
+                );
+              },
+            ),
+          )
         ],
       ),
     );

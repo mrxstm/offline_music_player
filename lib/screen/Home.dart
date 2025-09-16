@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:musicccc/Provider/song_provider.dart';
+import 'package:musicccc/screen/mini_player.dart';
 import 'package:musicccc/tile/song_tile.dart';
 import 'package:provider/provider.dart';
 
@@ -251,6 +252,12 @@ class _HomeState extends State<Home> {
             ),
           )
         ],
+      ),
+      bottomSheet: Consumer<SongProvider>(
+          builder: (context, songProvider, child) {
+            if(songProvider.currentSong == null) return SizedBox.shrink();
+            return MiniPlayer(currentSong: songProvider.currentSong!);
+          }
       ),
     );
   }

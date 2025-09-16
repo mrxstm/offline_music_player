@@ -2,8 +2,14 @@
 import 'package:flutter/material.dart';
 import 'package:musicccc/Model/song_model.dart';
 import 'package:musicccc/Service/mp3files_scanner.dart';
+import 'package:musicccc/service/audio_service.dart';
 
 class SongProvider extends ChangeNotifier {
+
+  //instances
+
+  //audio_service instance
+  AudioService audioService = AudioService();
 
 
   // songs list
@@ -39,15 +45,17 @@ class SongProvider extends ChangeNotifier {
 
   //functions :
   // to play
-  void play() {
+  void play() async{
     isPlaying = true;
     notifyListeners();
+    await audioService.play();
   }
 
   // to pause
-  void pause() {
+  void pause() async{
     isPlaying = false;
     notifyListeners();
+    await audioService.pause();
   }
 
   // on loop
@@ -75,11 +83,12 @@ class SongProvider extends ChangeNotifier {
   }
 
   //setting current song
-  void setCurrentSong(Song song) {
+  void setCurrentSong(Song song) async{
     currentSong = song;
     isPlaying = true;
+    audioService.loadSong(song.path);
     notifyListeners();
+    await audioService.play();
+
   }
-
-
 }
